@@ -4,12 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/tmdb';
 import { fetchSeasonData } from '@/app/actions';
+import ScrollableRow from '@/components/ui/ScrollableRow';
 import {
   ChevronDown,
   Search,
   ArrowUpDown,
-  Download,
-  Check,
   Play,
   X,
   Loader2,
@@ -28,7 +27,6 @@ export default function TVEpisodesSection({
   seasons,
   initialSeasonData,
   onPlayEpisode,
-  onToast,
 }: TVEpisodesSectionProps) {
   const filteredSeasons = seasons.filter((s: any) => s.season_number > 0);
   const defaultSeasonNumber =
@@ -46,7 +44,6 @@ export default function TVEpisodesSection({
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
-  const [downloadedEpisodes, setDownloadedEpisodes] = useState<Record<number, boolean>>({});
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const seasonCache = useRef<Record<number, any>>(
@@ -98,24 +95,6 @@ export default function TVEpisodesSection({
     };
   }, [tvId, selectedSeason]);
 
-  const toggleDownload = (ep: any, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const epId = ep.id || ep.episode_number;
-    const isNowDownloaded = !downloadedEpisodes[epId];
-    setDownloadedEpisodes((prev) => ({
-      ...prev,
-      [epId]: isNowDownloaded,
-    }));
-
-    if (onToast) {
-      onToast(
-        isNowDownloaded
-          ? `Episode ${ep.episode_number} saved for offline playback`
-          : `Removed Episode ${ep.episode_number} from downloads`
-      );
-    }
-  };
-
   const episodes: any[] = seasonData?.episodes || [];
 
   const filteredEpisodes = episodes
@@ -139,16 +118,16 @@ export default function TVEpisodesSection({
 
   return (
     <div className="w-full">
-      {/* Header: "Episodes" title without any red bar */}
-      <div className="flex items-center justify-between mb-6 select-none">
+      {/* Header: "Episodes" title */}
+      <div className="flex items-center justify-between mb-5 select-none">
         <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
           Episodes
         </h2>
       </div>
 
       {/* Control Bar: Season Selector + Search Bar + Sort Toggle */}
-      <div className="flex flex-wrap items-center gap-3.5 mb-7 select-none">
-        {/* Season Selector Dropdown (Styled with frosted glass pill button style) */}
+      <div className="flex flex-wrap items-center gap-3.5 mb-6 select-none">
+        {/* Season Selector Dropdown */}
         {filteredSeasons.length > 0 && (
           <div className="relative" ref={dropdownRef}>
             <button
@@ -164,7 +143,6 @@ export default function TVEpisodesSection({
               />
             </button>
 
-            {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div className="absolute left-0 top-full mt-2.5 z-50 min-w-[210px] bg-white/[0.12] bg-gradient-to-br from-white/[0.22] to-white/[0.07] backdrop-blur-3xl backdrop-saturate-[1.9] border border-white/[0.26] rounded-2xl p-2 shadow-[0_16px_40px_rgba(0,0,0,0.45),inset_0_1px_1px_0_rgba(255,255,255,0.45)] animate-in fade-in slide-in-from-top-2 duration-150">
                 <div className="max-h-64 overflow-y-auto filter-scrollbar overscroll-contain pr-1 scroll-smooth flex flex-col gap-1">
@@ -199,7 +177,7 @@ export default function TVEpisodesSection({
           </div>
         )}
 
-        {/* Search Episode Input (Styled as glass pill matching other buttons) */}
+        {/* Search Episode Input */}
         <div className="relative flex-1 max-w-xs sm:max-w-sm">
           <Search className="w-5 h-5 text-white/60 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -220,7 +198,7 @@ export default function TVEpisodesSection({
           )}
         </div>
 
-        {/* Sort Order Toggle (Styled as frosted glass pill button) */}
+        {/* Sort Order Toggle */}
         <button
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
           className="ios-btn-glass text-[14px] px-5 ml-auto"
@@ -234,15 +212,15 @@ export default function TVEpisodesSection({
         </button>
       </div>
 
-      {/* Episodes List Container */}
-      <div className="relative min-h-[250px]">
+      {/* Horizontal Episode Cards Carousel using Project Liquid-Glass Style & ScrollableRow */}
+      <div className="relative min-h-[260px]">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 text-white/50 gap-3">
             <Loader2 className="w-7 h-7 animate-spin text-white/70" />
             <span className="text-sm font-medium">Loading episodes...</span>
           </div>
         ) : filteredEpisodes.length === 0 ? (
-          <div className="bg-[#161618]/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-12 text-center text-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <div className="bg-white/[0.07] bg-gradient-to-br from-white/[0.12] to-white/[0.03] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] border border-white/[0.18] rounded-3xl p-12 text-center text-white/50 shadow-[0_8px_28px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.28)]">
             {searchQuery ? (
               <p>
                 No episodes matching &ldquo;{searchQuery}&rdquo; in this season.
@@ -252,94 +230,72 @@ export default function TVEpisodesSection({
             )}
           </div>
         ) : (
-          <div className="space-y-4">
+          <ScrollableRow className="flex items-stretch gap-3.5 sm:gap-4 md:gap-[18px] overflow-x-auto snap-x snap-mandatory pb-6 pt-2 custom-scrollbar px-0.5">
             {filteredEpisodes.map((episode: any) => {
               const epId = episode.id || episode.episode_number;
-              const isDownloaded = !!downloadedEpisodes[epId];
-              const epName = episode.name || `Episode ${episode.episode_number}`;
-              const formattedTitle = epName.toLowerCase().startsWith('episode')
-                ? epName
-                : `Episode ${episode.episode_number} · ${epName}`;
+              const epNum = episode.episode_number;
+              const rawName = (episode.name || '').trim();
+              const displayTitle = rawName
+                ? `${epNum}. ${rawName}`
+                : `${epNum}. Episode ${epNum}`;
 
               const runtimeMinutes =
                 episode.runtime ||
-                (typeof episode.duration === 'number' ? episode.duration : 45);
+                (typeof episode.duration === 'number' ? episode.duration : null);
 
               return (
                 <div
                   key={epId}
                   onClick={() => onPlayEpisode && onPlayEpisode(episode)}
-                  className="group relative bg-white/[0.07] hover:bg-white/[0.11] bg-gradient-to-br from-white/[0.12] to-white/[0.03] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] border border-white/[0.18] hover:border-white/[0.32] rounded-2xl md:rounded-3xl p-3.5 sm:p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6 transition-colors duration-200 cursor-pointer shadow-[0_8px_32px_rgba(0,0,0,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.3)]"
+                  className="group/card relative w-[260px] sm:w-[290px] md:w-[310px] lg:w-[322px] shrink-0 snap-start rounded-2xl sm:rounded-3xl bg-white/[0.07] hover:bg-white/[0.11] bg-gradient-to-br from-white/[0.12] to-white/[0.03] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] border border-white/[0.18] hover:border-white/[0.32] p-3 pb-5 flex flex-col transition-all duration-200 cursor-pointer shadow-[0_8px_28px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.28)] select-none"
                 >
-                  {/* Left: 16:9 Thumbnail with bottom-left episode number badge */}
-                  <div className="aspect-video w-full sm:w-44 md:w-56 lg:w-60 shrink-0 rounded-xl md:rounded-2xl overflow-hidden relative bg-black/40 shadow-inner">
+                  {/* Top 16:9 Thumbnail with Bottom-Right Runtime Pill */}
+                  <div className="relative w-full aspect-video rounded-xl sm:rounded-2xl overflow-hidden bg-white/5 shrink-0 shadow-inner">
                     {episode.still_path ? (
                       <Image
                         src={getImageUrl(episode.still_path, 'w500')}
-                        alt={epName}
+                        alt={rawName || `Episode ${epNum}`}
                         fill
-                        sizes="(max-width: 640px) 100vw, 240px"
+                        sizes="(max-width: 640px) 260px, 322px"
                         referrerPolicy="no-referrer"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-white/20 text-xs uppercase tracking-wider font-semibold">
-                        No Preview
+                      <div className="w-full h-full flex items-center justify-center text-white/25 text-xs uppercase tracking-wider font-semibold">
+                        Episode {epNum}
                       </div>
                     )}
 
-                    {/* Play icon on hover */}
-                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="w-11 h-11 rounded-full bg-white/[0.2] bg-gradient-to-br from-white/[0.35] to-white/[0.1] md:backdrop-blur-xl md:backdrop-saturate-[1.9] border border-white/40 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.6)] transform scale-90 group-hover:scale-100 transition-transform">
+                    {/* Hover Play Overlay matching project liquid glass */}
+                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <div className="w-11 h-11 rounded-full bg-white/[0.2] bg-gradient-to-br from-white/[0.35] to-white/[0.1] md:backdrop-blur-xl md:backdrop-saturate-[1.9] border border-white/40 text-white flex items-center justify-center shadow-[0_4px_20px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,0.6)] transform scale-90 group-hover/card:scale-100 transition-transform duration-200">
                         <Play className="w-4 h-4 fill-current ml-0.5" />
                       </div>
                     </div>
 
-                    {/* Bottom-left Episode Number Badge */}
-                    <div className="absolute bottom-2.5 left-2.5 bg-black/55 bg-gradient-to-br from-white/[0.24] to-white/[0.06] md:backdrop-blur-xl md:backdrop-saturate-[1.8] px-2.5 py-0.5 rounded-lg text-[11px] font-bold text-white shadow ring-1 ring-white/25 select-none">
-                      {episode.episode_number}
-                    </div>
+                    {/* Bottom-Right Runtime Badge (e.g., "53m") */}
+                    {runtimeMinutes ? (
+                      <div className="absolute bottom-2 right-2 bg-black/60 bg-gradient-to-br from-white/[0.22] to-white/[0.06] backdrop-blur-md px-2 py-0.5 rounded-md text-[11px] font-bold text-white/95 tracking-tight leading-snug shadow ring-1 ring-white/20">
+                        {runtimeMinutes}m
+                      </div>
+                    ) : null}
                   </div>
 
-                  {/* Middle: Title, Duration, Overview */}
-                  <div className="flex-1 min-w-0 pr-2">
-                    <h3 className="text-base sm:text-[17px] font-bold text-white group-hover:text-white/95 transition-colors line-clamp-1 mb-1">
-                      {formattedTitle}
+                  {/* Card Body: Numbered Episode Title + 4-Line Synopsis */}
+                  <div className="pt-3.5 px-1.5 flex-1 flex flex-col">
+                    <h3 className="text-[15px] sm:text-[16px] font-bold text-white group-hover/card:text-white/95 leading-snug line-clamp-1 mb-2">
+                      {displayTitle}
                     </h3>
 
-                    <div className="text-xs sm:text-sm text-white/50 font-medium mb-2">
-                      {runtimeMinutes} min
-                    </div>
-
-                    <p className="text-xs sm:text-[13.5px] text-white/65 line-clamp-2 md:line-clamp-3 leading-relaxed">
+                    <p className="text-[13px] sm:text-[13.5px] text-white/65 leading-[1.5] line-clamp-4 font-normal">
                       {episode.overview ||
-                        'No description provided for this episode.'}
+                        'No description available for this episode.'}
                     </p>
-                  </div>
-
-                  {/* Right: Download Action Button (Liquid glass button matching hero buttons) */}
-                  <div className="sm:self-center shrink-0 ml-auto sm:ml-0">
-                    <button
-                      onClick={(e) => toggleDownload(episode, e)}
-                      className={`ios-btn-circle ${
-                        isDownloaded
-                          ? '!bg-white/25 !text-white !border-white/40 shadow-[0_4px_20px_rgba(255,255,255,0.2)]'
-                          : ''
-                      }`}
-                      title={isDownloaded ? 'Downloaded' : 'Download episode'}
-                      aria-label="Download episode"
-                    >
-                      {isDownloaded ? (
-                        <Check className="w-5 h-5 text-white" strokeWidth={2.4} />
-                      ) : (
-                        <Download className="w-5 h-5" strokeWidth={2.2} />
-                      )}
-                    </button>
                   </div>
                 </div>
               );
             })}
-          </div>
+          </ScrollableRow>
         )}
       </div>
     </div>
