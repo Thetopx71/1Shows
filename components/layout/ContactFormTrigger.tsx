@@ -27,6 +27,7 @@ export default function ContactFormTrigger({
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,6 +88,10 @@ export default function ContactFormTrigger({
         throw new Error(data?.error || 'Failed to send message.');
       }
 
+      setSuccessMsg(
+        data?.message ||
+          'Thank you for contacting our administrative team. We have received your inquiry and will respond as soon as possible.'
+      );
       setIsSubmitted(true);
       setName('');
       setEmail('');
@@ -153,7 +158,8 @@ export default function ContactFormTrigger({
                   <div className="space-y-1.5">
                     <h4 className="text-lg font-bold text-white">Message Sent</h4>
                     <p className="text-sm text-white/65 max-w-sm mx-auto leading-relaxed">
-                      Thank you for contacting our administrative team. We have received your inquiry and will respond as soon as possible.
+                      {successMsg ||
+                        'Thank you for contacting our administrative team. We have received your inquiry and will respond as soon as possible.'}
                     </p>
                   </div>
                   <div className="pt-2 flex items-center justify-center">
