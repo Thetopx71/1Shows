@@ -18,7 +18,7 @@ export default function SettingsPanel({ onClose }: { onClose: () => void }) {
   const [telegramInviteUrl, setTelegramInviteUrl] = useState('https://t.me');
 
   useEffect(() => {
-    fetch('/api/contact')
+    fetch('/api/social')
       .then((r) => r.json())
       .then((data) => {
         if (data?.discordUrl) setDiscordInviteUrl(data.discordUrl);
