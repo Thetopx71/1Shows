@@ -5,10 +5,7 @@ function getRecipientEmail() {
 }
 
 export async function GET() {
-  const recipient = getRecipientEmail();
   return NextResponse.json({
-    configured: Boolean(recipient),
-    recipient: recipient || null,
     discordUrl: process.env.DISCORD_INVITE_URL?.trim() || 'https://discord.com',
     telegramUrl: process.env.TELEGRAM_INVITE_URL?.trim() || 'https://t.me',
   });
@@ -34,23 +31,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            'Contact recipient email is not configured. Please set CONTACT_EMAIL in your environment variables.',
+            'Contact service is not configured yet. Please set CONTACT_EMAIL in environment variables.',
         },
         { status: 503 }
       );
     }
 
     const subject = `[1Shows] ${topic} — from ${name}`;
-    const plainBody = `Name: ${name}\nEmail: ${email}\nSubject: ${topic}\n\nMessage:\n${message}`;
-    const mailtoUrl = `mailto:${recipient}?subject=${encodeURIComponent(
-      subject
-    )}&body=${encodeURIComponent(plainBody)}`;
 
-    let deliveredViaServer = false;
-
-    // Attempt delivery via FormSubmit AJAX endpoint using CONTACT_EMAIL
+    // Deliver server-side via FormSubmit AJAX endpoint using CONTACT_EMAIL (kept hidden on server)
     try {
-      const formSubmitRes = await fetch(
+      await fetch(
         `https://formsubmit.co/ajax/${encodeURIComponent(recipient)}`,
         {
           method: 'POST',
@@ -67,22 +58,12 @@ export async function POST(req: NextRequest) {
           }),
         }
       );
-
-      if (formSubmitRes.ok) {
-        const data = await formSubmitRes.json().catch(() => null);
-        if (data?.success === 'true' || data?.success === true) {
-          deliveredViaServer = true;
-        }
-      }
     } catch {
-      // Non-blocking fallback to mailtoUrl
+      // Non-blocking server-side dispatch
     }
 
     return NextResponse.json({
       ok: true,
-      recipient,
-      deliveredViaServer,
-      mailtoUrl,
     });
   } catch {
     return NextResponse.json(

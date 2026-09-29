@@ -69,10 +69,10 @@ export default function TermsOfUse() {
 
         <section className="space-y-2.5 pt-2 border-t border-white/10">
           <h2 className="text-xl font-bold text-white">7. Contact Us</h2>
-          <p>
+          <div>
             If you have any questions or inquiries regarding these Terms of Use, please contact our administrative team through our{' '}
             <ContactFormTrigger defaultTopic="Terms of Use Inquiry" />.
-          </p>
+          </div>
         </section>
       </div>
     </div>

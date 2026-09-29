@@ -72,10 +72,10 @@ export default function PrivacyPolicy() {
 
         <section className="space-y-2.5 pt-2 border-t border-white/10">
           <h2 className="text-xl font-bold text-white">7. Contact Us</h2>
-          <p>
+          <div>
             If you have any questions or concerns about this Privacy Policy, please contact our administrative team through our{' '}
             <ContactFormTrigger defaultTopic="Privacy Policy Inquiry" />.
-          </p>
+          </div>
         </section>
       </div>
     </div>
