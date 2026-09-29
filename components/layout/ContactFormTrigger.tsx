@@ -10,6 +10,7 @@ import {
   User,
   MessageSquare,
   Tag,
+  ChevronDown,
   Loader2,
   AlertCircle,
 } from 'lucide-react';
@@ -220,7 +221,7 @@ export default function ContactFormTrigger({
                       <select
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#181a24] border border-white/[0.14] focus:border-[#00d8ff]/70 text-sm text-white focus:outline-none transition cursor-pointer"
+                        className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#181a24] border border-white/[0.14] focus:border-[#00d8ff]/70 text-sm text-white focus:outline-none transition cursor-pointer appearance-none"
                       >
                         <option value="Privacy Policy Inquiry">Privacy Policy Inquiry</option>
                         <option value="Terms of Use Inquiry">Terms of Use Inquiry</option>
@@ -228,6 +229,7 @@ export default function ContactFormTrigger({
                         <option value="General Inquiry">General Inquiry</option>
                         <option value="Technical Support">Technical Support</option>
                       </select>
+                      <ChevronDown className="w-4 h-4 text-white/50 absolute right-3.5 pointer-events-none" />
                     </div>
                   </div>
 
