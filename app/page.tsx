@@ -6,8 +6,8 @@ import {
   TMDBError,
   getTrending,
   getStreamingMovies,
-  getFreeMovies,
-  getFreeTVShows,
+  getPopularAnimeTV,
+  getPopularAnimeMovies,
 } from '@/lib/tmdb';
 import MediaCard from '@/components/media/MediaCard';
 import HeroSlider from '@/components/home/HeroSlider';
@@ -30,8 +30,8 @@ export default async function Home({
   let trendingToday: any[] = [];
   let trendingWeek: any[] = [];
   let streaming: any[] = [];
-  let freeMovies: any[] = [];
-  let freeTv: any[] = [];
+  let animeTv: any[] = [];
+  let animeMovies: any[] = [];
   let heroItems: any[] = [];
   let errorMsg: string | null = null;
 
@@ -47,8 +47,8 @@ export default async function Home({
         getTrending('day'),
         getTrending('week'),
         getStreamingMovies(),
-        getFreeMovies(),
-        getFreeTVShows(),
+        getPopularAnimeTV(),
+        getPopularAnimeMovies(),
       ]);
 
       const getResults = (res: PromiseSettledResult<any>) =>
@@ -60,8 +60,8 @@ export default async function Home({
       trendingToday = getResults(settled[3]);
       trendingWeek = getResults(settled[4]);
       streaming = getResults(settled[5]);
-      freeMovies = getResults(settled[6]);
-      freeTv = getResults(settled[7]);
+      animeTv = getResults(settled[6]);
+      animeMovies = getResults(settled[7]);
 
       const allFailed = settled.every((r) => r.status === 'rejected');
       if (allFailed) {
@@ -164,10 +164,10 @@ export default async function Home({
             />
 
             <TabbedMediaRow
-              title="Free To Watch"
+              title="Popular Anime"
               tabs={[
-                { id: 'movies', label: 'Movies', items: freeMovies },
-                { id: 'tv', label: 'TV', items: freeTv },
+                { id: 'tv', label: 'Series', items: animeTv },
+                { id: 'movies', label: 'Movies', items: animeMovies },
               ]}
             />
           </div>

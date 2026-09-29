@@ -230,6 +230,22 @@ export async function getFreeTVShows() {
   });
 }
 
+export async function getPopularAnimeTV() {
+  return fetchTMDB('/discover/tv', {
+    with_genres: '16',
+    with_origin_country: 'JP',
+    sort_by: 'popularity.desc',
+  });
+}
+
+export async function getPopularAnimeMovies() {
+  return fetchTMDB('/discover/movie', {
+    with_genres: '16',
+    with_origin_country: 'JP',
+    sort_by: 'popularity.desc',
+  });
+}
+
 export async function getTrending(timeWindow: 'day' | 'week' = 'day') {
   return fetchTMDB(`/trending/all/${timeWindow}`);
 }
