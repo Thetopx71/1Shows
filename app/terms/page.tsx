@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import ContactFormTrigger from '@/components/layout/ContactFormTrigger';
 
 export const metadata: Metadata = {
   title: 'Terms of Use',
@@ -79,10 +78,16 @@ export default function TermsOfUse() {
 
         <section className="space-y-2.5 pt-2 border-t border-white/10">
           <h2 className="text-xl font-bold text-white">7. Contact Us</h2>
-          <div>
-            If you have any questions or inquiries regarding these Terms of Use, please contact our administrative team through our{' '}
-            <ContactFormTrigger defaultTopic="Terms of Use Inquiry" />.
-          </div>
+          <p>
+            If you have any questions or inquiries regarding these Terms of Use, please contact our administrative team at{' '}
+            <a
+              href="mailto:contact@1shows.im"
+              className="font-semibold text-[#00d8ff] hover:text-[#67e8f9] underline decoration-[#00d8ff]/60 hover:decoration-[#67e8f9] underline-offset-4 transition-colors"
+            >
+              contact@1shows.im
+            </a>
+            .
+          </p>
         </section>
       </div>
     </div>
