@@ -1,0 +1,19 @@
+<svg viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="one-cyan-grad" x1="24" y1="3" x2="52" y2="73" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00d8ff" />
+      <stop offset="50%" stop-color="#00a8ff" />
+      <stop offset="100%" stop-color="#0077ff" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(14, 0)">
+    <path
+      d="M 3 13.5 L 23.5 3 L 45 3 L 45 73 L 21.5 73 L 21.5 24.5 L 3 32.5 Z"
+      fill="#00a8ff"
+    />
+    <path
+      d="M 3 13.5 L 23.5 3 L 45 3 L 45 73 L 21.5 73 L 21.5 24.5 L 3 32.5 Z"
+      fill="url(#one-cyan-grad)"
+    />
+  </g>
+</svg>

@@ -1,6 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import ContactFormTrigger from '@/components/layout/ContactFormTrigger';
+
+export const metadata: Metadata = {
+  title: 'Terms of Use',
+  description:
+    'Review the Terms of Use for 1Shows, including intellectual property guidelines, content disclaimers, and acceptable use policies.',
+  alternates: {
+    canonical: '/terms',
+  },
+};
 
 export default function TermsOfUse() {
   return (
@@ -22,7 +32,7 @@ export default function TermsOfUse() {
         <section className="space-y-2.5">
           <h2 className="text-xl font-bold text-white">1. Acceptance of Terms</h2>
           <p>
-            By accessing and using 1Shows (&quot;the Service&quot;), you accept and agree to be bound by the terms and provision of this agreement.
+            By accessing and using 1Shows (&quot;the Service&quot;), you accept and agree to be bound by the terms and provisions of this agreement.
             If you do not agree to abide by these terms, please do not use the Service.
           </p>
         </section>
@@ -30,18 +40,18 @@ export default function TermsOfUse() {
         <section className="space-y-2.5">
           <h2 className="text-xl font-bold text-white">2. Intellectual Property and Copyright</h2>
           <p>
-            The original code, layout, and textual content of 1Shows are the property of 1Shows. However, the media assets displayed on this site—including movie posters, backdrop images, actor headshots, character names, and synopses—are the intellectual property of their respective film studios, networks, and creators.
+            The original code, layout, branding, and interface design of 1Shows are the property of 1Shows. Media assets displayed on this site—including movie posters, backdrop images, cast headshots, character names, trailers, and synopses—are the intellectual property of their respective film studios, networks, and creators.
           </p>
           <p>
-            We utilize these assets under <strong className="text-white">Fair Use</strong> principles for the purpose of commentary, review, and informational database indexing. We do not claim ownership over any copyrighted movie materials.
+            We utilize these assets under <strong className="text-white">Fair Use</strong> principles for the purpose of commentary, review, discovery, and informational database indexing. We do not claim ownership over any third-party copyrighted entertainment materials.
           </p>
         </section>
 
         <section className="space-y-2.5">
-          <h2 className="text-xl font-bold text-white">3. TMDB API Attribution</h2>
+          <h2 className="text-xl font-bold text-white">3. Third-Party Data &amp; Attribution</h2>
           <p>
-            This product uses the TMDB API but is not endorsed or certified by TMDB.
-            All movie data and images are sourced dynamically from The Movie Database (TMDB). We are grateful for their comprehensive database which makes this service possible.
+            All movie, TV series, and anime metadata, release schedules, ratings, and streaming availability guides are dynamically aggregated from third-party entertainment databases and public catalog services.
+            1Shows is an independent discovery platform and is not endorsed, certified, or affiliated with any motion picture studio or streaming network (including TMDB, whose API is used for metadata indexing).
           </p>
         </section>
 
@@ -56,7 +66,7 @@ export default function TermsOfUse() {
           <h2 className="text-xl font-bold text-white">5. Disclaimer of Warranties</h2>
           <p>
             The Service is provided on an &quot;as is&quot; and &quot;as available&quot; basis without any warranties of any kind, express or implied.
-            We do not guarantee the accuracy, completeness, or timeliness of the movie data provided, as it is aggregated from third-party sources.
+            We do not guarantee the accuracy, completeness, or timeliness of entertainment metadata or streaming availability provided, as regional catalogs change frequently.
           </p>
         </section>
 

@@ -1,6 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import ContactFormTrigger from '@/components/layout/ContactFormTrigger';
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  description:
+    'Read the 1Shows Privacy Policy to learn how we handle analytics, cookies, third-party media services, and user inquiries.',
+  alternates: {
+    canonical: '/privacy',
+  },
+};
 
 export default function PrivacyPolicy() {
   return (
@@ -31,27 +41,26 @@ export default function PrivacyPolicy() {
           <h2 className="text-xl font-bold text-white">2. Data We Collect</h2>
           <p>
             We may collect standard, anonymous analytics data (such as IP addresses, browser types, and page interactions) to understand how our site is used and to improve the user experience.
-            If you create an account in the future, we will collect information necessary to maintain your profile (e.g., email address, saved lists).
+            Your saved watchlist and player preferences are stored locally in your browser so you remain in full control of your data.
           </p>
         </section>
 
         <section className="space-y-2.5">
-          <h2 className="text-xl font-bold text-white">3. Third-Party Services &amp; APIs</h2>
+          <h2 className="text-xl font-bold text-white">3. Third-Party Services &amp; Media Content</h2>
           <p>
-            Our application heavily utilizes <strong className="text-white">The Movie Database (TMDB) API</strong> to fetch and display movie data, images, and reviews.
-            Please note that while we use TMDB services, we are not endorsed or certified by TMDB. Your interaction with TMDB-served content is also subject to their respective privacy guidelines.
+            Our platform aggregates movie, TV series, and anime metadata, artwork, ratings, and streaming availability from licensed third-party entertainment data providers.
+            Your interaction with externally hosted media assets is subject to the respective privacy guidelines of those content networks.
           </p>
           <p>
-            Additionally, we embed YouTube trailers. Viewing these trailers may subject you to YouTube&apos;s (Google&apos;s) privacy policies and data collection practices.
+            Additionally, we embed official trailers and video players. Viewing embedded videos may subject you to the privacy policies and data collection practices of the respective video hosting platforms.
           </p>
         </section>
 
         <section className="space-y-2.5">
-          <h2 className="text-xl font-bold text-white">4. Cookies and Tracking</h2>
+          <h2 className="text-xl font-bold text-white">4. Cookies and Local Storage</h2>
           <p>
-            We use cookies and similar tracking technologies to track activity on our service and hold certain information.
-            Cookies are files with a small amount of data which may include an anonymous unique identifier.
-            You can instruct your browser to refuse all cookies or to indicate when a cookie is being sent.
+            We use cookies and browser local storage technologies to remember your preferences (such as your personal watchlist and player settings) and improve site performance.
+            You can instruct your browser to refuse cookies or clear local storage at any time.
           </p>
         </section>
 

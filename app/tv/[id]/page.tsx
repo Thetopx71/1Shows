@@ -3,6 +3,7 @@ import {
   getTVDetails,
   getSeasonDetails,
   extractMediaId,
+  getMediaHref,
   TMDBError,
 } from '@/lib/tmdb';
 import { notFound } from 'next/navigation';
@@ -21,13 +22,44 @@ export async function generateMetadata({
     const show = await getTVDetails(tvId);
     const name = show?.name || 'TV Show';
     const year = show?.first_air_date ? show.first_air_date.slice(0, 4) : '';
+    const fullTitle = year
+      ? `${name} (${year}) – Episodes, Trailer & Cast`
+      : `${name} – Episodes, Trailer & Cast`;
+    const description =
+      show?.overview && show.overview.length > 20
+        ? show.overview.slice(0, 158)
+        : `Explore episode guides, ratings, trailers, and where to stream ${name} on 1Shows.`;
+    const canonicalPath = getMediaHref(show, 'tv');
+    const imagePath = show?.backdrop_path || show?.poster_path;
+    const ogImage = imagePath
+      ? `https://image.tmdb.org/t/p/w1280${imagePath}`
+      : undefined;
+
     return {
-      title: year ? `${name} (${year}) - 1Shows` : `${name} - 1Shows`,
-      description: show?.overview || 'TV show ratings, reviews, and streaming provider information.',
+      title: fullTitle,
+      description,
+      alternates: {
+        canonical: canonicalPath,
+      },
+      openGraph: {
+        type: 'video.tv_show',
+        url: canonicalPath,
+        title: `${fullTitle} | 1Shows`,
+        description,
+        siteName: '1Shows',
+        ...(ogImage ? { images: [{ url: ogImage, width: 1280, height: 720, alt: name }] } : {}),
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${fullTitle} | 1Shows`,
+        description,
+        ...(ogImage ? { images: [ogImage] } : {}),
+      },
     };
   } catch {
     return {
-      title: 'TV Show - 1Shows',
+      title: 'TV Series Details',
+      description: 'Explore TV show episodes, ratings, trailers, and streaming providers on 1Shows.',
     };
   }
 }
@@ -87,11 +119,48 @@ export default async function TVPage({
     }
   }
 
+  const imagePath = show.backdrop_path || show.poster_path;
+  const actors = (show.credits?.cast || [])
+    .slice(0, 8)
+    .map((a: any) => ({ '@type': 'Person', name: a.name }));
+
+  const tvJsonLd: Record<string, any> = {
+    '@context': 'https://schema.org',
+    '@type': 'TVSeries',
+    name: show.name,
+    description: show.overview || undefined,
+    startDate: show.first_air_date || undefined,
+    numberOfSeasons: show.number_of_seasons || undefined,
+    numberOfEpisodes: show.number_of_episodes || undefined,
+    image: imagePath ? `https://image.tmdb.org/t/p/w1280${imagePath}` : undefined,
+    genre: Array.isArray(show.genres)
+      ? show.genres.map((g: any) => g.name)
+      : undefined,
+    ...(actors.length > 0 ? { actor: actors } : {}),
+    ...(show.vote_average > 0 && show.vote_count > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: Number(show.vote_average.toFixed(1)),
+            bestRating: 10,
+            worstRating: 1,
+            ratingCount: show.vote_count,
+          },
+        }
+      : {}),
+  };
+
   return (
-    <MediaDetail
-      media={show}
-      type="tv"
-      initialSeasonData={initialSeasonData}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tvJsonLd) }}
+      />
+      <MediaDetail
+        media={show}
+        type="tv"
+        initialSeasonData={initialSeasonData}
+      />
+    </>
   );
 }

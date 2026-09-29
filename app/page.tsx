@@ -123,7 +123,7 @@ export default async function Home({
             </div>
           </div>
         ) : query ? (
-          <div className="space-y-8 mb-24">
+          <div className="space-y-8 mb-6 md:mb-8">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm">
                 Search Results for &ldquo;{query}&rdquo;
@@ -144,7 +144,7 @@ export default async function Home({
             )}
           </div>
         ) : (
-          <div className="space-y-12 md:space-y-16 mb-24">
+          <div className="space-y-12 md:space-y-16 mb-6 md:mb-8">
             <TabbedMediaRow
               title="Trending"
               tabs={[

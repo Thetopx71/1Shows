@@ -1,6 +1,6 @@
 {
   "name": "1Shows",
-  "description": "Movie ratings, reviews, and streaming provider information powered by TMDB.",
+  "description": "Discover trending movies, TV series, and popular anime on 1Shows. Explore ratings, trailers, episode guides, and where to stream across top platforms.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
