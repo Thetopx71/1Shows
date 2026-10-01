@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import AmbientBackground from '@/components/layout/AmbientBackground';
+import ParallelRouteShell from '@/components/layout/ParallelRouteShell';
 import {
   SITE_URL,
   SITE_TITLE,
@@ -116,11 +117,7 @@ export default function RootLayout({
         <AmbientBackground />
         <Navbar />
 
-        <div className="flex-1 relative z-10 w-full min-w-0 max-w-full">
-          {children}
-        </div>
-
-        {modal}
+        <ParallelRouteShell modal={modal}>{children}</ParallelRouteShell>
 
         <Footer />
         <CookieBanner />

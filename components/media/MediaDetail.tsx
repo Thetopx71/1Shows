@@ -234,24 +234,12 @@ export default function MediaDetail({
     return () => window.removeEventListener("message", handleMessage);
   }, [shouldMountHeroTrailer, trailerKey]);
 
-  // Pause hero background trailer & lock scroll when modal player opens, resume when closed
+  // Pause hero background trailer & lock body scroll when modal player opens, resume when closed
   useEffect(() => {
-    const interceptedContainer = document.querySelector(
-      "[data-intercepted-scroll-container]"
-    ) as HTMLElement | null;
-
     if (isTrailerOpen) {
       document.body.style.overflow = "hidden";
-      if (interceptedContainer) {
-        interceptedContainer.style.overflowY = "hidden";
-      }
     } else {
-      if (!isIntercepted) {
-        document.body.style.overflow = "";
-      }
-      if (interceptedContainer) {
-        interceptedContainer.style.overflowY = "auto";
-      }
+      document.body.style.overflow = "";
     }
 
     const handleEsc = (e: KeyboardEvent) => {
@@ -279,15 +267,10 @@ export default function MediaDetail({
     }
 
     return () => {
-      if (!isIntercepted) {
-        document.body.style.overflow = "";
-      }
-      if (interceptedContainer) {
-        interceptedContainer.style.overflowY = "auto";
-      }
+      document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [isTrailerOpen, shouldMountHeroTrailer, isHeroTrailerEnded, isIntercepted]);
+  }, [isTrailerOpen, shouldMountHeroTrailer, isHeroTrailerEnded]);
 
   const scheduleEmbedControlsHide = () => {
     if (embedControlsTimerRef.current) {
