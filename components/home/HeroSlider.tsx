@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Play, Info } from 'lucide-react';
 import { getImageUrl, GENRE_MAP, formatMediaDate, getMediaHref } from '@/lib/tmdb';
 import PopcornRating from '@/components/ui/PopcornRating';
@@ -13,6 +14,11 @@ const SLIDE_DURATION_MS = 7000; // 7 seconds per slide
 export default function HeroSlider({ items }: { items: any[] }) {
   const displayItems = (items || []).slice(0, 7); // 7 slides in Hero Slider
   const slideCount = displayItems.length;
+  const pathname = usePathname();
+  const isDetailRoute = Boolean(
+    pathname?.startsWith('/movie/') ||
+      (pathname?.startsWith('/tv/') && pathname !== '/tv')
+  );
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -23,22 +29,23 @@ export default function HeroSlider({ items }: { items: any[] }) {
 
   // Sync the project-wide blurred ambient background whenever the active hero slide changes
   useEffect(() => {
+    if (isDetailRoute) return;
     const activeItem = displayItems[currentIndex];
     if (activeItem) {
       setAmbientBackdrop(activeItem.backdrop_path || activeItem.poster_path);
     }
-  }, [currentIndex, displayItems]);
+  }, [currentIndex, displayItems, isDetailRoute]);
 
-  // Simple 7-second slide rotation timer
+  // Simple 7-second slide rotation timer (paused while detail route overlay is active)
   useEffect(() => {
-    if (slideCount <= 1) return;
+    if (slideCount <= 1 || isDetailRoute) return;
 
     const timer = setTimeout(() => {
       setCurrentIndex((current) => (current + 1) % slideCount);
     }, SLIDE_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [currentIndex, slideCount]);
+  }, [currentIndex, slideCount, isDetailRoute]);
 
   if (slideCount === 0) return null;
 

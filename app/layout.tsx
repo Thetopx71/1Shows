@@ -4,12 +4,14 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CookieBanner from '@/components/layout/CookieBanner';
 import AmbientBackground from '@/components/layout/AmbientBackground';
+import {
+  SITE_URL,
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+} from '@/lib/constants';
+import { buildWebsiteJsonLd } from '@/lib/seo';
 import './globals.css';
-
-const SITE_URL = process.env.APP_URL?.trim() || 'https://1shows.im';
-const SITE_TITLE = '1Shows – Movies, TV Series, Anime & Streaming Guide';
-const SITE_DESCRIPTION =
-  'Discover trending movies, TV series, and popular anime on 1Shows. Explore ratings, trailers, episode guides, and where to stream across top platforms.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -19,19 +21,7 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: '1Shows',
-  keywords: [
-    '1Shows',
-    'movies',
-    'TV shows',
-    'TV series',
-    'popular anime',
-    'streaming guide',
-    'where to watch',
-    'movie trailers',
-    'episode guide',
-    'movie ratings',
-    'watchlist',
-  ],
+  keywords: SITE_KEYWORDS,
   authors: [{ name: '1Shows' }],
   creator: '1Shows',
   publisher: '1Shows',
@@ -78,43 +68,15 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
-const structuredData = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebSite',
-      '@id': `${SITE_URL}/#website`,
-      url: SITE_URL,
-      name: '1Shows',
-      description: SITE_DESCRIPTION,
-      inLanguage: 'en-US',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: `${SITE_URL}/movies?q={search_term_string}`,
-        },
-        'query-input': 'required name=search_term_string',
-      },
-    },
-    {
-      '@type': 'WebApplication',
-      '@id': `${SITE_URL}/#app`,
-      name: '1Shows',
-      url: SITE_URL,
-      applicationCategory: 'EntertainmentApplication',
-      operatingSystem: 'All',
-      description: SITE_DESCRIPTION,
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'USD',
-      },
-    },
-  ],
-};
+const structuredData = buildWebsiteJsonLd();
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+  modal,
+}: {
+  children: React.ReactNode;
+  modal: React.ReactNode;
+}) {
   const rawGaId =
     process.env.GA_MEASUREMENT_ID?.trim() ||
     process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ||
@@ -157,6 +119,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="flex-1 relative z-10 w-full min-w-0 max-w-full">
           {children}
         </div>
+
+        {modal}
 
         <Footer />
         <CookieBanner />

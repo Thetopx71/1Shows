@@ -11,77 +11,13 @@ import {
 } from '@/lib/tmdb';
 import { ChevronDown, Check, Loader2, Dices, Trash2 } from 'lucide-react';
 import { setAmbientBackdrop } from '@/components/layout/AmbientBackground';
-
-const SORT_OPTIONS = [
-  { id: 'popularity.desc', label: 'Popular' },
-  { id: 'vote_average.desc', label: 'Highest Rated' },
-  { id: 'primary_release_date.desc', label: 'Newest Releases' }
-];
-
-const MOVIE_GENRES = [
-  { id: '', label: 'All Genres' },
-  { id: '28', label: 'Action' },
-  { id: '12', label: 'Adventure' },
-  { id: '16', label: 'Animation' },
-  { id: '35', label: 'Comedy' },
-  { id: '80', label: 'Crime' },
-  { id: '99', label: 'Documentary' },
-  { id: '18', label: 'Drama' },
-  { id: '10751', label: 'Family' },
-  { id: '14', label: 'Fantasy' },
-  { id: '36', label: 'History' },
-  { id: '27', label: 'Horror' },
-  { id: '10402', label: 'Music' },
-  { id: '9648', label: 'Mystery' },
-  { id: '10749', label: 'Romance' },
-  { id: '878', label: 'Sci-Fi' },
-  { id: '53', label: 'Thriller' },
-  { id: '10752', label: 'War' },
-  { id: '37', label: 'Western' }
-];
-
-const TV_GENRES = [
-  { id: '', label: 'All Genres' },
-  { id: '10759', label: 'Action & Adv' },
-  { id: '16', label: 'Animation' },
-  { id: '35', label: 'Comedy' },
-  { id: '80', label: 'Crime' },
-  { id: '99', label: 'Documentary' },
-  { id: '18', label: 'Drama' },
-  { id: '10751', label: 'Family' },
-  { id: '10762', label: 'Kids' },
-  { id: '9648', label: 'Mystery' },
-  { id: '10763', label: 'News' },
-  { id: '10764', label: 'Reality' },
-  { id: '10765', label: 'Sci-Fi' },
-  { id: '10766', label: 'Soap' },
-  { id: '10767', label: 'Talk' },
-  { id: '10768', label: 'Politics' },
-  { id: '37', label: 'Western' }
-];
-
-const YEARS = [
-  { id: '', label: 'All Years' },
-  ...Array.from({ length: 30 }, (_, i) => {
-    const year = new Date().getFullYear() - i;
-    return { id: year.toString(), label: year.toString() };
-  })
-];
-
-const COUNTRIES = [
-  { id: '', label: 'All Countries' },
-  { id: 'US', label: 'United States' },
-  { id: 'KR', label: 'South Korea' },
-  { id: 'JP', label: 'Japan' },
-  { id: 'GB', label: 'United Kingdom' },
-  { id: 'FR', label: 'France' },
-  { id: 'IN', label: 'India' },
-  { id: 'ES', label: 'Spain' },
-  { id: 'IT', label: 'Italy' },
-  { id: 'DE', label: 'Germany' },
-  { id: 'CA', label: 'Canada' },
-  { id: 'AU', label: 'Australia' }
-];
+import {
+  SORT_OPTIONS,
+  MOVIE_GENRES,
+  TV_GENRES,
+  YEARS,
+  COUNTRIES,
+} from '@/lib/constants';
 
 function FilterDropdown({ 
   label, 

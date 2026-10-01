@@ -33,7 +33,10 @@ import {
 } from "lucide-react";
 import MediaCard from "./MediaCard";
 import TVEpisodesSection from "./TVEpisodesSection";
-import ScrollableRow from "@/components/ui/ScrollableRow";
+import WhereToWatchSection from "./detail/WhereToWatchSection";
+import CastAndCrewRow from "./detail/CastAndCrewRow";
+import ProductionDetailsSection from "./detail/ProductionDetailsSection";
+import AudienceReviewsSection from "./detail/AudienceReviewsSection";
 import { setAmbientBackdrop } from "@/components/layout/AmbientBackground";
 import SettingsPanel from "@/components/layout/SettingsPanel";
 import {
@@ -50,10 +53,12 @@ export default function MediaDetail({
   media,
   type,
   initialSeasonData,
+  isIntercepted = false,
 }: {
   media: any;
   type: "movie" | "tv";
   initialSeasonData?: any;
+  isIntercepted?: boolean;
 }) {
   const router = useRouter();
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
@@ -109,9 +114,9 @@ export default function MediaDetail({
     }
   }, [media?.backdrop_path, media?.poster_path]);
 
-  // Ensure the browser URL includes the canonical {id}-{title}-{year} slug
+  // Ensure the browser URL includes the canonical {id}-{title}-{year} slug on direct visits
   useEffect(() => {
-    if (typeof window === "undefined" || !media?.id) return;
+    if (typeof window === "undefined" || !media?.id || isIntercepted) return;
     const canonicalPath = getMediaHref(media, type);
     if (window.location.pathname !== canonicalPath) {
       window.history.replaceState(
@@ -120,7 +125,7 @@ export default function MediaDetail({
         `${canonicalPath}${window.location.search}${window.location.hash}`
       );
     }
-  }, [media, type]);
+  }, [media, type, isIntercepted]);
 
   useEffect(() => {
     setEmbedSettings(getEmbedSettings());
@@ -229,12 +234,24 @@ export default function MediaDetail({
     return () => window.removeEventListener("message", handleMessage);
   }, [shouldMountHeroTrailer, trailerKey]);
 
-  // Pause hero background trailer & lock body scroll when modal player opens, resume when closed
+  // Pause hero background trailer & lock scroll when modal player opens, resume when closed
   useEffect(() => {
+    const interceptedContainer = document.querySelector(
+      "[data-intercepted-scroll-container]"
+    ) as HTMLElement | null;
+
     if (isTrailerOpen) {
       document.body.style.overflow = "hidden";
+      if (interceptedContainer) {
+        interceptedContainer.style.overflowY = "hidden";
+      }
     } else {
-      document.body.style.overflow = "";
+      if (!isIntercepted) {
+        document.body.style.overflow = "";
+      }
+      if (interceptedContainer) {
+        interceptedContainer.style.overflowY = "auto";
+      }
     }
 
     const handleEsc = (e: KeyboardEvent) => {
@@ -262,10 +279,15 @@ export default function MediaDetail({
     }
 
     return () => {
-      document.body.style.overflow = "";
+      if (!isIntercepted) {
+        document.body.style.overflow = "";
+      }
+      if (interceptedContainer) {
+        interceptedContainer.style.overflowY = "auto";
+      }
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [isTrailerOpen, shouldMountHeroTrailer, isHeroTrailerEnded]);
+  }, [isTrailerOpen, shouldMountHeroTrailer, isHeroTrailerEnded, isIntercepted]);
 
   const scheduleEmbedControlsHide = () => {
     if (embedControlsTimerRef.current) {
@@ -1192,136 +1214,14 @@ export default function MediaDetail({
       {/* Main Content Details */}
       <div className="container mx-auto px-4 sm:px-6 md:px-10 lg:px-12 max-w-[1440px] w-full min-w-0 mt-10 md:mt-14">
         {/* Where to Watch / Streaming Options Card */}
-        {(streamProviders.length > 0 || rentProviders.length > 0 || buyProviders.length > 0) && (
-          <div className="mb-14 p-5 sm:p-6 rounded-3xl bg-white/[0.07] bg-gradient-to-br from-white/[0.12] to-white/[0.03] border border-white/[0.2] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] shadow-[0_12px_36px_rgba(0,0,0,0.28),inset_0_1px_1px_0_rgba(255,255,255,0.3)]">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/25 flex items-center justify-center text-amber-400">
-                  <Tv className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white tracking-tight">Where to Watch</h3>
-                  <p className="text-xs text-white/60">Streaming, rent and purchase options</p>
-                </div>
-              </div>
+        <WhereToWatchSection
+          streamProviders={streamProviders}
+          rentProviders={rentProviders}
+          buyProviders={buyProviders}
+          justWatchLink={justWatchLink}
+        />
 
-              {justWatchLink && (
-                <a
-                  href={justWatchLink}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="inline-flex items-center gap-1.5 text-xs text-white/80 hover:text-white transition-colors bg-white/[0.08] hover:bg-white/[0.15] bg-gradient-to-br from-white/[0.18] to-white/[0.05] md:backdrop-blur-xl md:backdrop-saturate-[1.9] border border-white/25 hover:border-white/40 shadow-[0_4px_16px_rgba(0,0,0,0.2),inset_0_1px_1px_0_rgba(255,255,255,0.4)] px-4 py-2 rounded-full self-start sm:self-auto"
-                >
-                  <span>Powered by JustWatch</span>
-                  <ExternalLink className="w-3 h-3 text-white/60" />
-                </a>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-5">
-              {/* Stream With Subscription */}
-              {streamProviders.length > 0 && (
-                <div>
-                  <span className="text-xs uppercase tracking-wider font-semibold text-emerald-400 block mb-3 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                    Stream
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {streamProviders.map((prov: any) => (
-                      <div
-                        key={prov.provider_id}
-                        className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 px-3 py-1.5 rounded-2xl transition-colors"
-                        title={prov.provider_name}
-                      >
-                        {prov.logo_path && (
-                          <div className="relative w-6 h-6 rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={getImageUrl(prov.logo_path, "w500")}
-                              alt={prov.provider_name}
-                              fill
-                              sizes="48px"
-                              referrerPolicy="no-referrer"
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-xs font-medium text-white/90">{prov.provider_name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Rent Options */}
-              {rentProviders.length > 0 && (
-                <div>
-                  <span className="text-xs uppercase tracking-wider font-semibold text-amber-400 block mb-3 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                    Rent
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {rentProviders.slice(0, 6).map((prov: any) => (
-                      <div
-                        key={prov.provider_id}
-                        className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 px-3 py-1.5 rounded-2xl transition-colors"
-                        title={prov.provider_name}
-                      >
-                        {prov.logo_path && (
-                          <div className="relative w-6 h-6 rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={getImageUrl(prov.logo_path, "w500")}
-                              alt={prov.provider_name}
-                              fill
-                              sizes="48px"
-                              referrerPolicy="no-referrer"
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-xs font-medium text-white/90">{prov.provider_name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Buy Options */}
-              {buyProviders.length > 0 && (
-                <div>
-                  <span className="text-xs uppercase tracking-wider font-semibold text-blue-400 block mb-3 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                    Buy
-                  </span>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    {buyProviders.slice(0, 6).map((prov: any) => (
-                      <div
-                        key={prov.provider_id}
-                        className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 px-3 py-1.5 rounded-2xl transition-colors"
-                        title={prov.provider_name}
-                      >
-                        {prov.logo_path && (
-                          <div className="relative w-6 h-6 rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={getImageUrl(prov.logo_path, "w500")}
-                              alt={prov.provider_name}
-                              fill
-                              sizes="48px"
-                              referrerPolicy="no-referrer"
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-xs font-medium text-white/90">{prov.provider_name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* TV Episodes Section (matching reference image) */}
+        {/* TV Episodes Section */}
         {type === "tv" && media.seasons && (
           <div id="episodes-section" className="mb-16 md:mb-20 scroll-mt-28">
             <TVEpisodesSection
@@ -1341,168 +1241,19 @@ export default function MediaDetail({
         )}
 
         {/* Cast Section */}
-        {cast.length > 0 && (
-          <section className="mb-16 md:mb-20">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                Cast &amp; Crew
-              </h2>
-            </div>
-            <ScrollableRow className="flex gap-3 min-[390px]:gap-3.5 sm:gap-4 md:gap-[18px] overflow-x-auto snap-x snap-mandatory pb-6 pt-2 custom-scrollbar">
-              {cast.map((person: any) => (
-                <div
-                  key={person.id}
-                  className="w-[120px] min-[390px]:w-[132px] sm:w-[145px] md:w-[156px] lg:w-[166px] shrink-0 snap-start rounded-xl sm:rounded-2xl overflow-hidden bg-white/[0.07] bg-gradient-to-br from-white/[0.12] to-white/[0.03] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] border border-white/[0.18] shadow-[0_8px_24px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.25)] flex flex-col select-none"
-                >
-                  <div className="relative w-full aspect-[2/3] bg-white/5">
-                    {person.profile_path ? (
-                      <Image
-                        src={getImageUrl(person.profile_path, "w500")}
-                        alt={person.name}
-                        fill
-                        sizes="(max-width: 640px) 132px, 166px"
-                        referrerPolicy="no-referrer"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center w-full h-full text-white/20">
-                        <User className="w-10 h-10" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3 flex-1 flex flex-col justify-start">
-                    <p className="font-bold text-[13px] sm:text-sm text-white line-clamp-2 leading-snug mb-1">
-                      {person.name}
-                    </p>
-                    <p className="text-[11px] sm:text-xs text-white/60 line-clamp-2 leading-snug">
-                      {person.character}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </ScrollableRow>
-          </section>
-        )}
+        <CastAndCrewRow cast={cast} />
 
         {/* Media Details & Specifications Grid */}
-        <section className="mb-16 md:mb-20 p-6 md:p-8 rounded-3xl bg-white/[0.07] bg-gradient-to-br from-white/[0.12] to-white/[0.03] border border-white/[0.18] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] shadow-[0_12px_36px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.28)]">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-6 flex items-center gap-2.5">
-            <Layers className="w-5 h-5 text-amber-400" />
-            <span>Story &amp; Production Details</span>
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 text-sm">
-            {director && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Director</span>
-                <span className="font-semibold text-white/90">{director}</span>
-              </div>
-            )}
-            {creator && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Created By</span>
-                <span className="font-semibold text-white/90">{creator}</span>
-              </div>
-            )}
-            {fullReleaseDate && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Release Date</span>
-                <span className="font-semibold text-white/90">{fullReleaseDate}</span>
-              </div>
-            )}
-            {media.original_language && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Original Language</span>
-                <span className="font-semibold text-white/90 uppercase">{media.original_language}</span>
-              </div>
-            )}
-            {type === "movie" && formatCurrency(media.budget) && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Budget</span>
-                <span className="font-semibold text-white/90">{formatCurrency(media.budget)}</span>
-              </div>
-            )}
-            {type === "movie" && formatCurrency(media.revenue) && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Box Office Revenue</span>
-                <span className="font-semibold text-white/90">{formatCurrency(media.revenue)}</span>
-              </div>
-            )}
-            {type === "tv" && media.number_of_episodes && (
-              <div>
-                <span className="text-xs text-white/45 block mb-1">Total Episodes</span>
-                <span className="font-semibold text-white/90">{media.number_of_episodes} Episodes</span>
-              </div>
-            )}
-            {media.production_companies && media.production_companies.length > 0 && (
-              <div className="col-span-2">
-                <span className="text-xs text-white/45 block mb-1">Production</span>
-                <span className="font-semibold text-white/90">
-                  {media.production_companies.slice(0, 3).map((c: any) => c.name).join(" · ")}
-                </span>
-              </div>
-            )}
-          </div>
-        </section>
+        <ProductionDetailsSection
+          media={media}
+          type={type}
+          director={director}
+          creator={creator}
+          fullReleaseDate={fullReleaseDate}
+        />
 
         {/* Featured Audience Reviews */}
-        {featuredReviews.length > 0 && (
-          <section className="mb-16 md:mb-20">
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-6 flex items-center gap-2.5">
-              <Quote className="w-5 h-5 text-amber-400" />
-              <span>Reviews &amp; Thoughts</span>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {featuredReviews.map((rev: any) => {
-                const authorRating = rev.author_details?.rating;
-                return (
-                  <div
-                    key={rev.id}
-                    className="p-5 md:p-6 rounded-2xl bg-white/[0.07] bg-gradient-to-br from-white/[0.12] to-white/[0.03] border border-white/[0.18] md:backdrop-blur-2xl md:backdrop-saturate-[1.8] shadow-[0_8px_28px_rgba(0,0,0,0.25),inset_0_1px_1px_0_rgba(255,255,255,0.28)] flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between mb-3.5">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 font-bold text-xs uppercase">
-                            {rev.author?.[0] || "U"}
-                          </div>
-                          <div>
-                            <span className="text-sm font-semibold text-white block">{rev.author}</span>
-                            <span className="text-[11px] text-white/45">
-                              {rev.created_at ? new Date(rev.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Verified Reviewer"}
-                            </span>
-                          </div>
-                        </div>
-
-                        {authorRating && (
-                          <div className="flex items-center gap-1 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-full text-xs font-bold text-amber-300">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span>{authorRating}/10</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <p className="text-[13.5px] text-white/75 leading-relaxed line-clamp-4">
-                        {rev.content}
-                      </p>
-                    </div>
-
-                    {rev.url && (
-                      <a
-                        href={rev.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs text-amber-300 hover:text-amber-200 mt-4 transition-colors font-medium self-start"
-                      >
-                        <span>Read full review</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
+        <AudienceReviewsSection reviews={featuredReviews} />
 
         {/* Recommendations / Similar Titles Section */}
         {recommendations.length > 0 && (

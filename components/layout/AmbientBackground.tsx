@@ -8,6 +8,10 @@ const EVENT_NAME = 'popcorn:ambient-backdrop';
 
 let lastBackdropPath: string | null = null;
 
+export function getAmbientBackdrop(): string | null {
+  return lastBackdropPath;
+}
+
 export function setAmbientBackdrop(path: string | null | undefined) {
   if (typeof window === 'undefined') return;
   const normalized = path || null;
