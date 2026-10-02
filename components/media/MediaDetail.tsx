@@ -1062,6 +1062,7 @@ export default function MediaDetail({
               />
             )}
 
+            {/* Top-Left Back Button */}
             <div
               onMouseEnter={() => {
                 isHoveringEmbedBackRef.current = true;
@@ -1076,7 +1077,7 @@ export default function MediaDetail({
                   scheduleEmbedControlsHide();
                 }
               }}
-              className={`absolute top-5 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-30 flex items-center gap-2.5 transition-all duration-300 ${
+              className={`absolute top-5 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-30 flex items-center transition-all duration-300 ${
                 showEmbedControls || isPlayerListOpen
                   ? "opacity-100 translate-y-0 pointer-events-auto"
                   : "opacity-0 -translate-y-2 pointer-events-none"
@@ -1093,9 +1094,30 @@ export default function MediaDetail({
               >
                 <ChevronLeft className="w-[22px] h-[22px] mr-0.5" strokeWidth={2.2} />
               </button>
+            </div>
 
-              {/* Player List Switcher Button & Dropdown */}
-              {availableEmbedPlayers.length > 0 && (
+            {/* Top-Middle Player List Switcher Button & Dropdown (only shown when > 1 player is configured) */}
+            {availableEmbedPlayers.length > 1 && (
+              <div
+                onMouseEnter={() => {
+                  isHoveringEmbedBackRef.current = true;
+                  setShowEmbedControls(true);
+                  if (embedControlsTimerRef.current) {
+                    clearTimeout(embedControlsTimerRef.current);
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (!isPlayerListOpen) {
+                    isHoveringEmbedBackRef.current = false;
+                    scheduleEmbedControlsHide();
+                  }
+                }}
+                className={`absolute top-5 left-1/2 -translate-x-1/2 sm:top-6 md:top-8 z-30 flex items-center transition-all duration-300 ${
+                  showEmbedControls || isPlayerListOpen
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 -translate-y-2 pointer-events-none"
+                }`}
+              >
                 <div className="relative">
                   <button
                     type="button"
@@ -1124,8 +1146,8 @@ export default function MediaDetail({
                   </button>
 
                   {isPlayerListOpen && (
-                    <div className="absolute left-0 top-full mt-2 w-44 rounded-2xl bg-white/[0.12] bg-gradient-to-br from-white/[0.22] to-white/[0.07] backdrop-blur-3xl backdrop-saturate-[1.9] border border-white/[0.26] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.55),inset_0_1px_1px_0_rgba(255,255,255,0.45)] animate-in fade-in slide-in-from-top-1 duration-150 select-none">
-                      <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/45">
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 w-44 rounded-2xl bg-white/[0.12] bg-gradient-to-br from-white/[0.22] to-white/[0.07] backdrop-blur-3xl backdrop-saturate-[1.9] border border-white/[0.26] p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.55),inset_0_1px_1px_0_rgba(255,255,255,0.45)] animate-in fade-in slide-in-from-top-1 duration-150 select-none">
+                      <div className="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/45 text-center">
                         Select Player
                       </div>
                       <div className="space-y-1 max-h-56 overflow-y-auto filter-scrollbar">
@@ -1154,8 +1176,8 @@ export default function MediaDetail({
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             <iframe
               allowFullScreen
