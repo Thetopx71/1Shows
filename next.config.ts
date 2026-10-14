@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
   },
   // Allow access to remote image placeholder and TMDB images.
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
