@@ -13,9 +13,7 @@ export async function generateMetadata({
     const show = await getTVDetails(tvId);
     const name = show?.name || 'TV Show';
     const year = show?.first_air_date ? show.first_air_date.slice(0, 4) : '';
-    const fullTitle = year
-      ? `${name} (${year}) – Episodes, Trailer & Cast`
-      : `${name} – Episodes, Trailer & Cast`;
+    const fullTitle = year ? `${name} (${year})` : name;
     const description =
       show?.overview && show.overview.length > 20
         ? show.overview.slice(0, 158)

@@ -39,6 +39,7 @@ export default function ParallelRouteShell({
 
   const savedScrollYRef = useRef<number>(0);
   const savedBackdropRef = useRef<string | null>(null);
+  const savedTitleRef = useRef<string | null>(null);
   const wasActiveRef = useRef<boolean>(false);
 
   const isDetailPathname = Boolean(
@@ -63,18 +64,24 @@ export default function ParallelRouteShell({
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isDetailPathname]);
 
-  // Synchronously manage scroll position & ambient backdrop when entering/leaving an intercepted detail route
+  // Synchronously manage scroll position, ambient backdrop & document.title when entering/leaving an intercepted detail route
   useIsomorphicLayoutEffect(() => {
     if (isInterceptedActive && !wasActiveRef.current) {
       // Entering intercepted detail view from browse page
       wasActiveRef.current = true;
       savedBackdropRef.current = getAmbientBackdrop();
+      if (typeof document !== 'undefined') {
+        savedTitleRef.current = document.title;
+      }
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
     } else if (!isInterceptedActive && wasActiveRef.current) {
       // Returning to underlying browse page
       wasActiveRef.current = false;
       if (savedBackdropRef.current) {
         setAmbientBackdrop(savedBackdropRef.current);
+      }
+      if (typeof document !== 'undefined' && savedTitleRef.current) {
+        document.title = savedTitleRef.current;
       }
       window.scrollTo({
         top: savedScrollYRef.current,

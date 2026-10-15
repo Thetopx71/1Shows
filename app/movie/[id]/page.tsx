@@ -13,9 +13,7 @@ export async function generateMetadata({
     const movie = await getMovieDetails(movieId);
     const title = movie?.title || 'Movie';
     const year = movie?.release_date ? movie.release_date.slice(0, 4) : '';
-    const fullTitle = year
-      ? `${title} (${year}) – Watch, Trailer & Cast`
-      : `${title} – Watch, Trailer & Cast`;
+    const fullTitle = year ? `${title} (${year})` : title;
     const description =
       movie?.overview && movie.overview.length > 20
         ? movie.overview.slice(0, 158)

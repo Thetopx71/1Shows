@@ -1,4 +1,12 @@
-import { SITE_URL, SITE_DESCRIPTION } from './constants';
+import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION } from './constants';
+
+export function getMediaDocumentTitle(media: any, type: 'movie' | 'tv'): string {
+  if (!media) return SITE_TITLE;
+  const title = media.title || media.name || (type === 'movie' ? 'Movie' : 'TV Show');
+  const date = media.release_date || media.first_air_date;
+  const year = date ? date.slice(0, 4) : '';
+  return year ? `${title} (${year}) | 1Shows` : `${title} | 1Shows`;
+}
 
 export function buildWebsiteJsonLd() {
   return {

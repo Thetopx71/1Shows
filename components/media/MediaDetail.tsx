@@ -38,6 +38,7 @@ import CastAndCrewRow from "./detail/CastAndCrewRow";
 import ProductionDetailsSection from "./detail/ProductionDetailsSection";
 import AudienceReviewsSection from "./detail/AudienceReviewsSection";
 import { setAmbientBackdrop } from "@/components/layout/AmbientBackground";
+import { getMediaDocumentTitle } from "@/lib/seo";
 import SettingsPanel from "@/components/layout/SettingsPanel";
 import {
   DEFAULT_SETTINGS,
@@ -113,6 +114,20 @@ export default function MediaDetail({
       setAmbientBackdrop(media.backdrop_path || media.poster_path);
     }
   }, [media?.backdrop_path, media?.poster_path]);
+
+  // Synchronize document.title with the media item (especially during parallel/intercepted routing)
+  useEffect(() => {
+    if (typeof document === "undefined" || !media) return;
+    const originalTitle = document.title;
+    const mediaTitle = getMediaDocumentTitle(media, type);
+    document.title = mediaTitle;
+
+    return () => {
+      if (originalTitle && originalTitle !== mediaTitle) {
+        document.title = originalTitle;
+      }
+    };
+  }, [media, type]);
 
   // Ensure the browser URL includes the canonical {id}-{title}-{year} slug on direct visits
   useEffect(() => {
