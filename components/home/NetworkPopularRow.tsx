@@ -11,6 +11,7 @@ import {
   STREAMING_PROVIDERS,
   StreamingProviderOption,
   resolveProviderLogos,
+  deduplicateMediaList,
 } from '@/lib/tmdb';
 
 export default function NetworkPopularRow({
@@ -29,8 +30,8 @@ export default function NetworkPopularRow({
 
   // Cache media by `${providerId}-${tab}` initialized with Netflix server-side results
   const [mediaCache, setMediaCache] = useState<Record<string, any[]>>({
-    '8-movies': movies,
-    '8-tv': tv,
+    '8-movies': deduplicateMediaList(movies),
+    '8-tv': deduplicateMediaList(tv),
   });
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -40,8 +41,8 @@ export default function NetworkPopularRow({
   useEffect(() => {
     setMediaCache((prev) => ({
       ...prev,
-      '8-movies': movies,
-      '8-tv': tv,
+      '8-movies': deduplicateMediaList(movies),
+      '8-tv': deduplicateMediaList(tv),
     }));
   }, [movies, tv]);
 
@@ -100,8 +101,8 @@ export default function NetworkPopularRow({
         fetchedProvidersRef.current.add(selectedProviderId);
         setMediaCache((prev) => ({
           ...prev,
-          [movieKey]: movieData?.results || [],
-          [tvKey]: tvData?.results || [],
+          [movieKey]: deduplicateMediaList(movieData?.results || []),
+          [tvKey]: deduplicateMediaList(tvData?.results || []),
         }));
       })
       .catch((err) => {

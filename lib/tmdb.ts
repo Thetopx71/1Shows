@@ -299,16 +299,36 @@ export function getImageUrl(
   return `https://image.tmdb.org/t/p/${size}${cleanPath}`;
 }
 
-export async function discoverMovies(params: any = {}) {
-  return fetchTMDB('/discover/movie', {
-    ...params,
+export function deduplicateMediaList<T = any>(list: T[]): T[] {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set<string>();
+  return list.filter((item: any) => {
+    if (!item || item.id === undefined || item.id === null) return false;
+    const key = String(item.id);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
 
-export async function discoverTV(params: any = {}) {
-  return fetchTMDB('/discover/tv', {
+export async function discoverMovies(params: any = {}) {
+  const data = await fetchTMDB('/discover/movie', {
     ...params,
   });
+  if (data && Array.isArray(data.results)) {
+    data.results = deduplicateMediaList(data.results);
+  }
+  return data;
+}
+
+export async function discoverTV(params: any = {}) {
+  const data = await fetchTMDB('/discover/tv', {
+    ...params,
+  });
+  if (data && Array.isArray(data.results)) {
+    data.results = deduplicateMediaList(data.results);
+  }
+  return data;
 }
 
 export async function getWatchProviders(type: 'movie' | 'tv' = 'movie') {

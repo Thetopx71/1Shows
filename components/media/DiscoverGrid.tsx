@@ -8,6 +8,7 @@ import {
   getImageUrl,
   STREAMING_PROVIDERS,
   resolveProviderLogos,
+  deduplicateMediaList,
 } from '@/lib/tmdb';
 import { ChevronDown, Check, Loader2, Dices, Trash2 } from 'lucide-react';
 import { setAmbientBackdrop } from '@/components/layout/AmbientBackground';
@@ -183,7 +184,7 @@ export default function DiscoverGrid({
   initialData: any,
   title: string 
 }) {
-  const [items, setItems] = useState(initialData?.results || []);
+  const [items, setItems] = useState<any[]>(() => deduplicateMediaList(initialData?.results || []));
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(initialData?.total_pages || 1);
   const [isLoading, setIsLoading] = useState(false);
@@ -274,9 +275,9 @@ export default function DiscoverGrid({
       }
       
       if (append) {
-        setItems((prev: any) => [...prev, ...results]);
+        setItems((prev: any) => deduplicateMediaList([...prev, ...results]));
       } else {
-        setItems(results);
+        setItems(deduplicateMediaList(results));
       }
       setTotalPages(data.total_pages || 1);
     } catch (error) {
@@ -335,7 +336,7 @@ export default function DiscoverGrid({
   };
 
   useEffect(() => {
-    const firstWithImage = items.find((m: any) => m?.backdrop_path || m?.poster_path);
+    const firstWithImage: any = items.find((m: any) => m?.backdrop_path || m?.poster_path);
     if (firstWithImage) {
       setAmbientBackdrop(firstWithImage.backdrop_path || firstWithImage.poster_path);
     }

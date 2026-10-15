@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import MediaCard from '@/components/media/MediaCard';
 import ScrollableRow from '@/components/ui/ScrollableRow';
+import { deduplicateMediaList } from '@/lib/tmdb';
 
 export interface MediaRowTab {
   id: string;
@@ -23,7 +24,7 @@ export default function TabbedMediaRow({
   if (!hasAnyItems) return null;
 
   const activeTab = tabs.find((tab) => tab.id === activeTabId) || tabs[0];
-  const items = activeTab?.items || [];
+  const items = deduplicateMediaList(activeTab?.items || []);
 
   return (
     <div>
